@@ -27,7 +27,7 @@ function setup() {
   createElement("h1", "Cloth/Rope simulation based on Verlet integration");
   createElement("p", "Left click to move and right click to delete");
   // canvas = createCanvas(800, 800);
-  canvas = createCanvas(windowWidth / 2, windowWidth / 2);
+  canvas = createCanvas(windowWidth * 0.7, windowHeight * 0.8);
 
   canvas.mousePressed(mp);
   canvas.mouseClicked(mc);
