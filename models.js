@@ -7,6 +7,7 @@ function Point(x, y, l) {
 
   this.display = function () {
     if (this.x && this.y) {
+      strokeWeight(1);
       if (this.locked) fill(255, 0, 0);
       else fill(255, 255, 255);
       circle(this.x, this.y, 10);
@@ -19,7 +20,9 @@ function Point(x, y, l) {
         old_x = this.x;
         old_y = this.y;
 
-        this.y += 0.1;
+        if (gravity.value()) this.y += gravity.value();
+        else this.y += 0.1;
+        // print(gravity.value);
 
         this.x += this.x - this.px;
         this.y += this.y - this.py;
@@ -27,7 +30,18 @@ function Point(x, y, l) {
         this.px = old_x;
         this.py = old_y;
       }
+      /* if (this.x > 800) this.x = 800;
+      if (this.x < 0) this.x = 0;
+      if (this.y > 800) this.y = 800;
+      if (this.y < 0) this.y = 0; */
     }
+  };
+
+  this.isPressed = function (x, y) {
+    if (dist(x, y, this.x, this.y) <= 15) {
+      return true;
+    }
+    return false;
   };
 }
 
@@ -39,6 +53,8 @@ function Line(p1, p2, l) {
   this.display = function () {
     if (this.p1 && this.p2) {
       stroke(100);
+      strokeWeight(1);
+
       line(p1.x, p1.y, p2.x, p2.y);
     }
   };
@@ -95,7 +111,7 @@ function Rope(npoints, width, start) {
 
   this.isPressed = function (x, y) {
     for (let i = 0; i < this.points.length; i++) {
-      if (dist(x, y, this.points[i].x, this.points[i].y) <= 10) {
+      if (this.points[i].isPressed(x, y)) {
         return i;
       }
     }
@@ -118,23 +134,16 @@ function Rope(npoints, width, start) {
   };
 
   this.move = function (x, y, i) {
-    this.points[i] = new Point(x, y, this.points[i].locked);
-    if (i < npoints)
-      this.lines[i] = new Line(this.points[i], this.points[i + 1], this.width);
-    if (i > 0)
-      this.lines[i - 1] = new Line(
-        this.points[i - 1],
-        this.points[i],
-        this.width
-      );
+    this.points[i].x = x;
+    this.points[i].y = y;
   };
 
   this.display = function () {
-    for (let i = 0; i < this.points.length; i++) {
-      this.points[i].display();
-    }
     for (let i = 0; i < this.lines.length; i++) {
       this.lines[i].display();
+    }
+    for (let i = 0; i < this.points.length; i++) {
+      this.points[i].display();
     }
   };
 
@@ -186,7 +195,7 @@ function Cloth(npoints, width, start) {
   this.isPressed = function (x, y) {
     for (let i = 0; i < this.grid.length; i++) {
       for (let j = 0; j < this.grid[i].length; j++) {
-        if (dist(x, y, this.grid[i][j].x, this.grid[i][j].y) <= 15) {
+        if (this.grid[i][j].isPressed(x, y)) {
           return [i, j];
         }
       }
@@ -195,7 +204,6 @@ function Cloth(npoints, width, start) {
   };
 
   this.break = function (x, y) {
-    // this.lines.splice(i, 1);
     for (let i = 0; i < this.lines.length; i++) {
       let d1 = dist(x, y, this.lines[i].p1.x, this.lines[i].p1.y);
       let d2 = dist(x, y, this.lines[i].p2.x, this.lines[i].p2.y);
@@ -211,37 +219,41 @@ function Cloth(npoints, width, start) {
   };
 
   this.move = function (x, y, i, j) {
-    this.grid[i][j] = new Point(x, y, this.grid[i][j].locked);
-    this.lines[i * this.npoints + j] = new Line(
-      this.grid[i][j],
-      this.grid[i + 1][j],
-      this.width
-    );
-    this.lines[(i - 1) * this.npoints + j] = new Line(
-      this.grid[i - 1][j],
-      this.grid[i][j],
-      this.width
-    );
+    this.grid[i][j].x = x;
+    this.grid[i][j].y = y;
   };
 
   this.display = function () {
+    for (let i = 0; i < this.lines.length; i++) {
+      this.lines[i].display();
+    }
     for (let i = 0; i < this.npoints; i++) {
       for (let j = 0; j < this.npoints; j++) {
         this.grid[i][j].display();
       }
-    }
-    for (let i = 0; i < this.lines.length; i++) {
-      this.lines[i].display();
     }
   };
 
   this.update = function () {
     for (let i = 0; i < this.npoints; i++) {
       for (let j = 0; j < this.npoints; j++) {
-        this.grid[i][j].update();
+        if (this.lines[i]) this.grid[i][j].update();
       }
     }
     for (let i = 0; i < this.lines.length; i++) {
+      // print(tear.value())
+      if (
+        tear.checked() &&
+        dist(
+          this.lines[i].p1.x,
+          this.lines[i].p1.y,
+          this.lines[i].p2.x,
+          this.lines[i].p2.y
+        ) >=
+          5 * this.lines[i].l
+      ) {
+        this.lines.splice(i, 1);
+      }
       this.lines[i].update();
     }
   };
