@@ -1,4 +1,6 @@
 // For it to run you need a local server (check: https://github.com/processing/p5.js/wiki/Local-server)
+p5.disableFriendlyErrors = true;
+
 let ropes = [];
 let dragging = -1;
 let vert = -1;
@@ -12,6 +14,10 @@ let tear;
 
 let isClothMode = true;
 
+let stress;
+
+let dots;
+
 function setup() {
   // put setup code here
   document.oncontextmenu = function () {
@@ -20,20 +26,29 @@ function setup() {
 
   createElement("h1", "Cloth/Rope simulation based on Verlet integration");
   createElement("p", "Left click to move and right click to delete");
-  canvas = createCanvas(800, 800);
+  // canvas = createCanvas(800, 800);
+  canvas = createCanvas(windowWidth / 2, windowWidth / 2);
 
   canvas.mousePressed(mp);
   canvas.mouseClicked(mc);
 
-  cloth = new Cloth(31, 20, createVector(100, 20));
+  cloth = new Cloth(31, 20);
 
   gravity = createSlider(-0.1, 0.4, 0.1, 0.01);
 
+  dots = createCheckbox("Dots", false);
   tear = createCheckbox("Tear", false);
+
+  stress = createCheckbox("Stress", false);
 
   button = createButton("Rope mode");
   button.mousePressed(toggle);
+  pixelDensity(1);
 }
+
+/* function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+} */
 
 function toggle() {
   if (isClothMode) {
@@ -44,7 +59,7 @@ function toggle() {
   } else {
     button.html("Rope Mode");
     ropes = [];
-    cloth = new Cloth(29, 20, createVector(50, 50));
+    cloth = new Cloth(29, 20);
     isClothMode = true;
   }
 }
@@ -90,7 +105,7 @@ function mouseClicked() {
 function draw() {
   // put drawing code here
 
-  background(220);
+  background("#1F2227");
 
   if (mouseIsPressed) {
     if (!isClothMode && dragging >= 0)
@@ -117,6 +132,13 @@ function draw() {
     cloth.update();
   }
 
+  let fps = frameRate();
+  noStroke();
+  fill(255);
+
+  text("FPS: " + fps.toFixed(2), 10, height - 10);
+
+  stroke(255);
   strokeWeight(5);
   line(mouseX, mouseY, pmouseX, pmouseY);
 }

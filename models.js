@@ -5,12 +5,16 @@ function Point(x, y, l) {
   this.py = y;
   this.locked = l;
 
+  this.radius = 8;
+
   this.display = function () {
-    if (this.x && this.y) {
-      strokeWeight(1);
+    if (dots.checked() && this.x && this.y) {
+      // strokeWeight(1);
+      // colorMode(RGB, 255);
+      noStroke();
       if (this.locked) fill(255, 0, 0);
-      else fill(255, 255, 255);
-      circle(this.x, this.y, 10);
+      else fill(200);
+      circle(this.x, this.y, this.radius);
     }
   };
 
@@ -30,19 +34,30 @@ function Point(x, y, l) {
         this.px = old_x;
         this.py = old_y;
       }
-      /* if (this.x > 800) this.x = 800;
-      if (this.x < 0) this.x = 0;
-      if (this.y > 800) this.y = 800;
-      if (this.y < 0) this.y = 0; */
+      if (this.x >= width - this.radius) this.x = width - this.radius;
+      if (this.x <= this.radius) this.x = this.radius;
+      if (this.y >= height - this.radius) this.y = height - this.radius;
+      if (this.y <= this.radius) this.y = this.radius;
     }
   };
 
   this.isPressed = function (x, y) {
-    if (dist(x, y, this.x, this.y) <= 15) {
+    if (dist(x, y, this.x, this.y) <= this.radius * 1.5) {
       return true;
     }
     return false;
   };
+}
+
+function pickHex(color1, color2, weight) {
+  var w1 = weight;
+  var w2 = 1 - w1;
+  var rgb = [
+    Math.round(color1[0] * w1 + color2[0] * w2),
+    Math.round(color1[1] * w1 + color2[1] * w2),
+    Math.round(color1[2] * w1 + color2[2] * w2),
+  ];
+  return rgb;
 }
 
 function Line(p1, p2, l) {
@@ -52,8 +67,16 @@ function Line(p1, p2, l) {
 
   this.display = function () {
     if (this.p1 && this.p2) {
-      stroke(100);
       strokeWeight(1);
+      if (stress.checked()) {
+        // colorMode(HSB, 100);
+        n =
+          0.08 +
+          dist(this.p1.x, this.p1.y, this.p2.x, this.p2.y) / (5 * this.l);
+        rgb = pickHex([255, 0, 0], [0, 255, 0], n);
+        stroke(rgb[0], rgb[1], rgb[2]);
+        // stroke(255, (1 - n) * 255, 0);
+      } else stroke(255);
 
       line(p1.x, p1.y, p2.x, p2.y);
     }
@@ -152,15 +175,28 @@ function Rope(npoints, width, start) {
       this.points[i].update();
     }
     for (let i = 0; i < this.lines.length; i++) {
+      if (
+        tear.checked() &&
+        dist(
+          this.lines[i].p1.x,
+          this.lines[i].p1.y,
+          this.lines[i].p2.x,
+          this.lines[i].p2.y
+        ) >=
+          5 * this.lines[i].l
+      ) {
+        this.lines.splice(i, 1);
+      }
       this.lines[i].update();
     }
   };
 }
 
-function Cloth(npoints, width, start) {
+function Cloth(npoints, w) {
   this.npoints = npoints;
-  this.width = width;
-  this.start = start;
+  this.width = w;
+
+  this.start = createVector((width - (this.npoints - 1) * this.width) / 2, 10);
 
   this.grid = [];
   this.lines = [];
