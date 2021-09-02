@@ -95,11 +95,13 @@ function mc() {
 }
 
 function mousePressed() {
-  if (mouseX < 0 || mouseX > 800 || mouseY < 0 || mouseY > 800) dragging = -1;
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height)
+    dragging = -1;
 }
 
 function mouseClicked() {
-  if (mouseX < 0 || mouseX > 800 || mouseY < 0 || mouseY > 800) dragging = -1;
+  if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height)
+    dragging = -1;
 }
 
 function draw() {
