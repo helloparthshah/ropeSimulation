@@ -107,7 +107,7 @@ function mouseClicked() {
 function draw() {
   // put drawing code here
 
-  background("#1F2227");
+  background(255);
 
   if (mouseIsPressed) {
     if (!isClothMode && dragging >= 0)
@@ -136,11 +136,6 @@ function draw() {
 
   let fps = frameRate();
   noStroke();
-  fill(255);
-
+  fill(0);
   text("FPS: " + fps.toFixed(2), 10, height - 10);
-
-  stroke(255);
-  strokeWeight(5);
-  line(mouseX, mouseY, pmouseX, pmouseY);
 }

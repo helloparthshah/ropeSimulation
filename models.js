@@ -9,11 +9,8 @@ function Point(x, y, l) {
 
   this.display = function () {
     if (dots.checked() && this.x && this.y) {
-      // strokeWeight(1);
-      // colorMode(RGB, 255);
-      noStroke();
       if (this.locked) fill(255, 0, 0);
-      else fill(200);
+      else fill(255);
       circle(this.x, this.y, this.radius);
     }
   };
@@ -26,7 +23,6 @@ function Point(x, y, l) {
 
         if (gravity.value()) this.y += gravity.value();
         else this.y += 0.1;
-        // print(gravity.value);
 
         this.x += this.x - this.px;
         this.y += this.y - this.py;
@@ -67,16 +63,14 @@ function Line(p1, p2, l) {
 
   this.display = function () {
     if (this.p1 && this.p2) {
-      strokeWeight(1);
+      // strokeWeight(0.5);
       if (stress.checked()) {
-        // colorMode(HSB, 100);
         n =
           0.08 +
           dist(this.p1.x, this.p1.y, this.p2.x, this.p2.y) / (5 * this.l);
         rgb = pickHex([255, 0, 0], [0, 255, 0], n);
         stroke(rgb[0], rgb[1], rgb[2]);
-        // stroke(255, (1 - n) * 255, 0);
-      } else stroke(255);
+      } else stroke(0);
 
       line(p1.x, p1.y, p2.x, p2.y);
     }
